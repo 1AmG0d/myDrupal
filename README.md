@@ -1,6 +1,6 @@
 # idrupal
 ### For Educational Purposes Only!
-Drupal Version Checker
+Drupal Scanner/Version Checker/Exploiter
 
 
 Usage:
