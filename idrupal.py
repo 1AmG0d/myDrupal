@@ -129,6 +129,8 @@ def get_version(target):
 				raise SystemExit
 			else:
 				print("[!] INVALID SELECTION.... Select [y/n]")
+	else:
+		raise SystemExit
 
 def prep_target():
 	target = args.target
