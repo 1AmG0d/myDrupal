@@ -1,7 +1,6 @@
-# idrupal
+# mydrupal
 ### For Educational Purposes Only!
-Drupal Scanner/Version Checker/Exploiter
-
+Drupal Scanner/Version Checker
 
 Usage:
 python3 idrupal.py -h
@@ -13,4 +12,5 @@ python3 idrupal.py <target>
 
 
 
-README may become outdated, will update later in this project. -h should be more than enough help to get you started.
+### Final Version.
+At least until another drupal exploit is found.
